@@ -73,4 +73,6 @@
 (define nivel3 (list 1 2 3 4 5 6 7 8))
 (define nivel4 (list 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16))
 
-(alfabeta (nuevoArbol 4 nivel4) 4 -inf.0 +inf.0 #t)
+; (alfabeta (nuevoArbol 4 nivel4) 4 -inf.0 +inf.0 #t)
+
+; TODO main y posición de la máxima puntuación
