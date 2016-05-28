@@ -14,13 +14,28 @@
     (cdr (cdr v))
 )
 
+(define (valorPosicionAux v p)
+    (if (null? v)
+        null
+        (cons (list (car v) p) (valorPosicionAux (cdr v) (+ p 1)))
+    )
+)
+
+(define (valorPosicion v)
+    (valorPosicionAux v 0)
+)
+
 ; p = Profundidad
 ; v = Lista de resultados
-(define (nuevoArbol p v)
+(define (nuevoArbolAux p v)
     (if (= p 1)
         v
-        (empareja (nuevoArbol (- p 1) v))
+        (empareja (nuevoArbolAux (- p 1) v))
     )
+)
+
+(define (nuevoArbol p v)
+    (nuevoArbolAux p (valorPosicion v))
 )
 
 ; v = Lista de resultados
@@ -48,19 +63,29 @@
 )
 
 (define (alfabeta nodo profundidad a b max)
-    (if (integer? nodo)
+    (if (integer? (primero nodo))
         nodo
         (if max
             ((lambda (x)
-                (if (< b x) ; Poda
+                (if (< b (primero x)) ; Poda
                     x
-                    (mayor (alfabeta (segundo nodo) (- profundidad 1) a b #f) x)
+                    ((lambda (y)
+                        (if (> (primero y) (primero x))
+                            y
+                            x
+                        )
+                    ) (alfabeta (segundo nodo) (- profundidad 1) a b #f))
                 )
             ) (alfabeta (primero nodo) (- profundidad 1) a b #f))
             ((lambda (x)
-                (if (< b x) ; Poda
+                (if (< b (primero x)) ; Poda
                     x
-                    (menor (alfabeta (segundo nodo) (- profundidad 1) a b #f) x)
+                    ((lambda (y)
+                        (if (< (primero y) (primero x))
+                            y
+                            x
+                        )
+                    ) (alfabeta (segundo nodo) (- profundidad 1) a b #t))
                 )
             ) (alfabeta (primero nodo) (- profundidad 1) a b #t))
         )
@@ -73,6 +98,17 @@
 (define nivel3 (list 1 2 3 4 5 6 7 8))
 (define nivel4 (list 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16))
 
-; (alfabeta (nuevoArbol 4 nivel4) 4 -inf.0 +inf.0 #t)
+(alfabeta (nuevoArbol 3 nivel3) 3 -inf.0 +inf.0 #t)
 
+
+; PARA SABER EL RECORRIDO CON LA ESTRUCTURA QUE TENEMOS AHORA:
+;
+;   X%nHojas >= nHojas/2;
+;   Por ejemplo, para un árbol de nivel 3 (8 hojas):
+;   La posición 5 se encontraría así:
+;
+;   5 % 8 >= 4 -> 1 (Derecha)
+;   5 % 4 >= 2 -> 0 (Izquierda)
+;   5 % 2 >= 1 -> 1 (Derecha)
+;
 ; TODO main y posición de la máxima puntuación
