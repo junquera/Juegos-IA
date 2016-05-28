@@ -1,4 +1,6 @@
 #lang racket
+(require pict)
+(require pict/tree-layout)
 ; https://docs.racket-lang.org/pict/Tree_Layout.html
 ;(require pict/tree-layout)
 
@@ -14,6 +16,13 @@
     (cdr (cdr v))
 )
 
+
+
+; Cada hoja del árbol contiene su valor y su posición
+(define (valorPosicion v)
+    (valorPosicionAux v 0)
+)
+
 (define (valorPosicionAux v p)
     (if (null? v)
         null
@@ -21,12 +30,12 @@
     )
 )
 
-(define (valorPosicion v)
-    (valorPosicionAux v 0)
-)
-
 ; p = Profundidad
 ; v = Lista de resultados
+(define (nuevoArbol p v)
+    (nuevoArbolAux p (valorPosicion v))
+)
+
 (define (nuevoArbolAux p v)
     (if (= p 1)
         v
@@ -34,9 +43,6 @@
     )
 )
 
-(define (nuevoArbol p v)
-    (nuevoArbolAux p (valorPosicion v))
-)
 
 ; v = Lista de resultados
 (define (empareja v)
@@ -46,22 +52,7 @@
     )
 )
 
-; Devuelve el mayor entre a y b
-(define (mayor a b)
-    (if (> a b)
-        a
-        b
-    )
-)
-
-; Devuelve el menor entre a y b
-(define (menor a b)
-    (if (> a b)
-        b
-        a
-    )
-)
-
+; Algoritmo minimax con poda alfabeta
 (define (alfabeta nodo profundidad a b max)
     (if (integer? (primero nodo))
         nodo
@@ -98,17 +89,69 @@
 (define nivel3 (list 1 2 3 4 5 6 7 8))
 (define nivel4 (list 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16))
 
-(alfabeta (nuevoArbol 3 nivel3) 3 -inf.0 +inf.0 #t)
+; Ver qué camino hay que tomar para llegar al valor en función de su posición
+(define (camino profundidad resultado)
+    (if (= profundidad 0)
+        null
+        ((lambda (hojas)
+            (if (>= (modulo (segundo resultado) hojas) (/ hojas 2))
+                (cons "derecha" (camino (- profundidad 1) resultado))
+                (cons "izquierda" (camino (- profundidad 1) resultado))
+            )
+        )(expt 2 profundidad))
+    )
+)
+
+; Imprimir resultado del juego
+(define (printArbol a)
+  (naive-layered (make-tree a))
+)
+
+(define (make-tree a)
+  (if (integer? (primero a))
+      (tree-layout #:pict (text (number->string (primero a))))
+      (tree-layout (make-tree (primero a)) (make-tree (segundo a)))
+  )
+)
+(define (printResultado res profundidad jugador)
+    (printf "El mejor valor para el ~a jugador es ~a, y su camino es: ~a.\n" jugador (primero res) (string-join (camino profundidad res) ", "))
+)
+; v = Lista de valores
+(define (juegoAux profundidad v)
+    ((lambda (arbol)
+        (printf "Esta es la lista de valores: ~a\n" v)
+        (printResultado (alfabeta arbol profundidad -inf.0 +inf.0 #t) profundidad "primer")
+        (printResultado (alfabeta arbol profundidad -inf.0 +inf.0 #f) profundidad "segundo")
+        (printf "Arbol:\n")
+        (printArbol arbol)
+    ) (nuevoArbol profundidad v))
+)
+
+; Desordenar la lista
+(define (removePosition p l)
+    (if (null? l)
+        null
+        (if (= p 0)
+            (cdr l)
+            (cons (car l) (removePosition (- p 1) (cdr l)))
+        )
+    )
+)
+(define (desordena l)
+    (if (null? l)
+        null
+        ((lambda (x)
+            (cons (list-ref l x) (desordena (removePosition x l)))
+        ) (random (length l)))
+    )
+)
+
+(define (juego profundidad v aleatorio)
+    (if aleatorio
+        (juegoAux profundidad (desordena v))
+        (juegoAux profundidad v)
+    )
+)
 
 
-; PARA SABER EL RECORRIDO CON LA ESTRUCTURA QUE TENEMOS AHORA:
-;
-;   X%nHojas >= nHojas/2;
-;   Por ejemplo, para un árbol de nivel 3 (8 hojas):
-;   La posición 5 se encontraría así:
-;
-;   5 % 8 >= 4 -> 1 (Derecha)
-;   5 % 4 >= 2 -> 0 (Izquierda)
-;   5 % 2 >= 1 -> 1 (Derecha)
-;
-; TODO main y posición de la máxima puntuación
+(juego 4 nivel4 #t)

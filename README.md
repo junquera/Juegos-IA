@@ -36,4 +36,16 @@ Profundidad   | Resultado
 
 ### Algoritmo
 
-Utilizaremos un minimax y haremos poda alfa-beta.
+Utilizaremos un minimax y haremos poda alfa-beta. Las hojas del árbol son un par valor-posición.
+
+ PARA SABER EL RECORRIDO CON LA ESTRUCTURA QUE TENEMOS AHORA:
+
+   X%nHojas >= nHojas/2;
+   Por ejemplo, para un árbol de nivel 3 (8 hojas):
+   La posición 5 se encontraría así:
+
+   5 % 8 >= 4 -> 1 (Derecha)
+   5 % 4 >= 2 -> 0 (Izquierda)
+   5 % 2 >= 1 -> 1 (Derecha)
+
+ TODO main y posición de la máxima puntuación
