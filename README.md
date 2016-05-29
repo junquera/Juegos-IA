@@ -9,6 +9,12 @@ Supóngase un juego de dos contendientes, suma cero, con información completa, 
 Se pide elaborar un programa Scheme-Racket  que tenga como entradas el nivel de profundidad de las jugadas finales,  las puntuaciones de las mismas y la posibilidad de usar dichas puntuaciones  en el orden dado o distribuidas aleatoriamente para evaluar dichas jugadas finales.
 Como salida, debe producir la estrategia óptima para cada jugador, calculada con el método que sea más efectivo computacionalmente.
 
+## Desarrollo
+
+Como estrategia de resolución del problema, utilizaremos el algoritmo minimax y haremos poda alfa-beta.
+
+Las hojas del árbol son un par valor-posiciónd, de esta manera, podemos obtener directamente del resultado el camino a seguir. Damos la posibilidad de que el usuario decida si el orden de las hojas es aleatorio o igual al de los valores introducidos. El método principal será alfabeta, que se encargará tanto de buscar el camino óptimo como de realizar la poda. Para la poda, utilizamos lambdas que "guardarán" los valores tanto para comparar con beta (para la poda) como para saber con qué valor nos quedamos. Al ser un árbol binario, nos ha sido muy fácil recorrer todos los hijos de cada nodo.
+
 ## Resolución
 
 Datos necesarios:
@@ -23,7 +29,7 @@ Generaremos:
 
 - Árbol binario:
 
-    - Número de hojas =  2**profundidad
+    - Número de hojas =  2^profundidad
 
     - Se modelará como una lista de listas de pares de la siguiente manera:
 
@@ -36,16 +42,14 @@ Profundidad   | Resultado
 
 ### Algoritmo
 
-Utilizaremos un minimax y haremos poda alfa-beta. Las hojas del árbol son un par valor-posición.
+Para obtener el recorrido, utilizamos el siguiente algoritmo:
 
- PARA SABER EL RECORRIDO CON LA ESTRUCTURA QUE TENEMOS AHORA:
+    X%nHojas >= nHojas/2;
 
-   X%nHojas >= nHojas/2;
-   Por ejemplo, para un árbol de nivel 3 (8 hojas):
-   La posición 5 se encontraría así:
+    Por ejemplo, para un árbol de nivel 3 (8 hojas):
 
-   5 % 8 >= 4 -> 1 (Derecha)
-   5 % 4 >= 2 -> 0 (Izquierda)
-   5 % 2 >= 1 -> 1 (Derecha)
+    La posición 5 se encontraría así:
 
- TODO main y posición de la máxima puntuación
+        5 % 8 >= 4 -> 1 (Derecha)
+        5 % 4 >= 2 -> 0 (Izquierda)
+        5 % 2 >= 1 -> 1 (Derecha)

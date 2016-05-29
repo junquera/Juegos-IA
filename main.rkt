@@ -147,9 +147,12 @@
 )
 
 (define (juego profundidad v aleatorio)
-    (if aleatorio
-        (juegoAux profundidad (desordena v))
-        (juegoAux profundidad v)
+    (if (= (length v) (expt 2 profundidad))
+        (if aleatorio
+            (juegoAux profundidad (desordena v))
+            (juegoAux profundidad v)
+        )
+        (printf "Datos incorrectos.\n")
     )
 )
 
